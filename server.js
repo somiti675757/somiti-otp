@@ -28,7 +28,7 @@ app.post('/send-otp', async (req, res) => {
     <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
         <h2 style="color: #4CAF50; text-align: center;">সমিতি অ্যাপ ভেরিফিকেশন</h2>
         <p>আসসালামু আলাইকুম,</p>
-        <p>আপনার অ্যাকাউন্টটি ভেরিফাই করার জন্য নিচে একটি ওয়ান-тайম পাসওয়ার্ড (OTP) দেওয়া হলো। কোডটি কারো সাথে শেয়ার করবেন না।</p>
+        <p>আপনার অ্যাকাউন্টটি ভেরিফাই করার জন্য নিচে একটি ওয়ান-টাইম পাসওয়ার্ড (OTP) দেওয়া হলো। কোডটি কারো সাথে শেয়ার করবেন না।</p>
         <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
             ${currentOtp}
         </div>
