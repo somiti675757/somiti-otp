@@ -18,13 +18,26 @@ app.post('/send-otp', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Email and OTP are required!' });
   }
 
+  // ইমেইলের জন্য এইচটিএমএল ডিজাইন টেমপ্লেট (ভেরিয়েবল পার্সিং ফিক্সড)
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #4CAF50; text-align: center;">সমিতি অ্যাপ ভেরিফিকেশন</h2>
+        <p>আসসালামু আলাইকুম,</p>
+        <p>আপনার অ্যাকাউন্টটি ভেরিফাই করার জন্য নিচে একটি ওয়ান-টাইম পাসওয়ার্ড (OTP) দেওয়া হলো। কোডটি কারো সাথে শেয়ার করবেন না।</p>
+        <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
+            ${otp}
+        </div>
+        <p style="font-size: 12px; color: #777; text-align: center;">এই কোডটির মেয়াদ মাত্র ৫ মিনিট। যদি আপনি এই রিকোয়েস্ট না করে থাকেন, তবে ইমেইলটি ইগনোর করুন।</p>
+    </div>
+  `;
+
   // ব্রেভো HTTP API এর মাধ্যমে মেইল পাঠানোর কনফিগারেশন
   try {
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
         'accept': 'application/json',
-        'api-key': process.env.BREVO_PASS, // রেন্ডারে সেট করা আপনার ব্রেভোর পাসওয়ার্ড/Key
+        'api-key': process.env.BREVO_PASS, // রেন্ডারে সেট করা আপনার ব্রেভোর নতুন API Key
         'content-type': 'application/json'
       },
       body: JSON.stringify({
@@ -34,17 +47,7 @@ app.post('/send-otp', async (req, res) => {
         },
         to: [{ email: email }],
         subject: '🔒 আপনার অ্যাকাউন্ট ভেরিফিকেশন ওটিপি (OTP)',
-        htmlContent: `
-          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="color: #4CAF50; text-align: center;">সমিতি অ্যাপ ভেরিফিকেশন</h2>
-              <p>আসসালামু আলাইকুম,</p>
-              <p>আপনার অ্যাকাউন্টটি ভেরিফাই করার জন্য নিচে একটি ওয়ান-টাইম পাসওয়ার্ড (OTP) দেওয়া হলো। কোডটি কারো সাথে শেয়ার করবেন না।</p>
-              <div style="background: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
-                  ${otp}
-              </div>
-              <p style="font-size: 12px; color: #777; text-align: center;">এই কোডটির মেয়াদ মাত্র ৫ মিনিট। যদি আপনি এই রিকোয়েস্ট না করে থাকেন, তবে ইমেইলটি ইগনোর করুন।</p>
-          </div>
-        `
+        htmlContent: emailHtml
       })
     });
 
