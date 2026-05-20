@@ -1,15 +1,23 @@
 const admin = require("firebase-admin");
 
-// Firebase service account key import
-const serviceAccount = require("./serviceAccountKey.json");
 
-// Firebase initialize
+// Firebase credentials from Render ENV
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT
+);
+
+
+// Initialize Firebase
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+
+  credential: admin.credential.cert(
+    serviceAccount
+  )
+
 });
 
-// Firestore database instance
+
+// Firestore database
 const db = admin.firestore();
 
-// Export database
 module.exports = db;
