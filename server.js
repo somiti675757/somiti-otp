@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 
+const cors = require("cors");
+
 const sendOtpRoute = require("./routes/sendOtp");
 
 const verifyOtpRoute = require("./routes/verifyOtp");
@@ -12,6 +14,13 @@ const app = express();
 // ==============================
 // Middleware
 // ==============================
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:5173"
+  ]
+}));
 
 app.use(express.json());
 
