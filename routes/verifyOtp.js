@@ -13,9 +13,10 @@ router.post("/", async (req, res) => {
 
   try {
 
-    const email = req.body.email;
+    const email = String(req.body.email || "").trim();
 
-    const enteredOtp = req.body.otp;
+    const enteredOtp = String(req.body.otp || "").trim();
+
 
     // Validation
     if (!email || !enteredOtp) {
@@ -30,13 +31,32 @@ router.post("/", async (req, res) => {
 
     }
 
-    // Firestore থেকে data আনো
+
+    // OTP অবশ্যই 6 digit হতে হবে
+    if (!/^\d{6}$/.test(enteredOtp)) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message: "OTP must be 6 digits"
+
+      });
+
+    }
+
+
+    // ==============================
+    // Firestore থেকে OTP data আনো
+    // ==============================
+
     const doc = await db
       .collection("otp_verifications")
       .doc(email)
       .get();
 
-    // User data না থাকলে
+
+    // OTP data না থাকলে
     if (!doc.exists) {
 
       return res.status(404).json({
@@ -49,9 +69,14 @@ router.post("/", async (req, res) => {
 
     }
 
+
     const data = doc.data();
 
+
+    // ==============================
     // Too many wrong attempts
+    // ==============================
+
     if (data.attempts >= 5) {
 
       return res.status(429).json({
@@ -65,7 +90,11 @@ router.post("/", async (req, res) => {
 
     }
 
+
+    // ==============================
     // Already used?
+    // ==============================
+
     if (data.used) {
 
       return res.status(400).json({
@@ -78,7 +107,11 @@ router.post("/", async (req, res) => {
 
     }
 
+
+    // ==============================
     // Expired?
+    // ==============================
+
     if (Date.now() > data.expiresAt) {
 
       return res.status(400).json({
@@ -91,11 +124,18 @@ router.post("/", async (req, res) => {
 
     }
 
-    // OTP mismatch?
-    if (enteredOtp !== data.otp) {
 
-      // attempts বাড়াও
+    // ==============================
+    // OTP compare
+    // ==============================
+
+    const savedOtp = String(data.otp || "").trim();
+
+
+    if (enteredOtp !== savedOtp) {
+
       const newAttempts = data.attempts + 1;
+
 
       await db
         .collection("otp_verifications")
@@ -105,6 +145,7 @@ router.post("/", async (req, res) => {
           attempts: newAttempts
 
         });
+
 
       return res.status(400).json({
 
@@ -117,7 +158,11 @@ router.post("/", async (req, res) => {
 
     }
 
-    // Success হলে used=true
+
+    // ==============================
+    // OTP verified successfully
+    // ==============================
+
     await db
       .collection("otp_verifications")
       .doc(email)
@@ -127,12 +172,17 @@ router.post("/", async (req, res) => {
 
       });
 
+
     console.log(
       "OTP VERIFIED SUCCESSFULLY!"
     );
 
+
+    // ==============================
     // Success response
-    res.status(200).json({
+    // ==============================
+
+    return res.status(200).json({
 
       success: true,
 
@@ -141,6 +191,7 @@ router.post("/", async (req, res) => {
 
     });
 
+
   } catch (error) {
 
     console.error(
@@ -148,7 +199,8 @@ router.post("/", async (req, res) => {
       error
     );
 
-    res.status(500).json({
+
+    return res.status(500).json({
 
       success: false,
 
@@ -161,5 +213,8 @@ router.post("/", async (req, res) => {
 });
 
 
+// ==============================
 // Export router
+// ==============================
+
 module.exports = router;
