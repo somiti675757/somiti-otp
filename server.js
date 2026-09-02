@@ -30,11 +30,11 @@ app.use(express.json());
 // ==============================
 
 app.get("/", (req, res) => {
+  res.send("Somiti OTP Server is Running Live 24/7!");
+});
 
-  res.send(
-    "Somiti OTP Server is Running Live 24/7!"
-  );
-
+app.head("/", (req, res) => {
+  res.status(200).end();
 });
 
 
